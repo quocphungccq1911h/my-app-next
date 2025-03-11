@@ -1,9 +1,21 @@
 import { cookies } from "next/headers";
-import { MOBILESHOP_GRAPHQL_API_ENDPOINT } from "../constants";
+import { MOBILESHOP_GRAPHQL_API_ENDPOINT, TAGS } from "../constants";
 import { handleFetchError } from "../type-guards";
 import { ensureStartsWith } from "../utils";
-import { Cart, Connection, MobileCartOperation, MobileShopCart } from "./type";
+import {
+  Cart,
+  Connection,
+  Menu,
+  MobileCartOperation,
+  MobileShopCart,
+  MobileShopMenuOperation,
+} from "./type";
 import { getCartQuery } from "./queries/cart";
+import {
+  unstable_cacheTag as cacheTag,
+  unstable_cacheLife as cacheLife,
+} from "next/cache";
+import { getMenuQuery } from "./queries/menu";
 
 const domain = process.env.MOBILESHOP_STORE_DOMAIN
   ? ensureStartsWith(process.env.MOBILESHOP_STORE_DOMAIN, "https://")
@@ -16,7 +28,7 @@ type ExtractVariables<T> = T extends { variables: object }
   : never;
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
-  return array.edges.map(edge => edge.node);
+  return array.edges.map((edge) => edge.node);
 };
 
 const reshapeCart = (cart: MobileShopCart): Cart => {
@@ -86,4 +98,29 @@ export async function getCart(): Promise<Cart | undefined> {
   }
   console.log(res.body.data.cart);
   return reshapeCart(res.body.data.cart);
+}
+
+export async function getMenu(handle: string): Promise<Menu[]> {
+  "use cache";
+  cacheTag(TAGS.collections);
+  cacheLife("days");
+
+  const res = await mobileShopFetch<MobileShopMenuOperation>({
+    query: getMenuQuery,
+    variables: {
+      handle,
+    },
+  });
+
+  return (
+    res.body?.data?.menu?.items.map(
+      (item: { title: string; url: string }) => ({
+        title: item.title,
+        path: item.url
+          .replace(domain, "")
+          .replace("/collections", "/search")
+          .replace("/pages", ""),
+      })
+    ) || []
+  );
 }

@@ -74,3 +74,22 @@ export type MobileCartOperation = {
     cartId: string;
   };
 };
+
+export type Menu = {
+  title: string;
+  path: string;
+};
+
+export type MobileShopMenuOperation = {
+  data: {
+    menu?: {
+      items: {
+        title: string;
+        url: string;
+      }[];
+    };
+  };
+  variables: {
+    handle: string;
+  };
+};
