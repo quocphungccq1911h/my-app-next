@@ -1,20 +1,12 @@
 export class MobileShopError extends Error {
   status: number;
   cause?: Error;
-  query?: any;
-  error?: any;
-  constructor(
-    message: string,
-    status: number,
-    query?: any,
-    error?: any,
-    cause?: Error
-  ) {
+  query?: string;
+  constructor(message: string, status: number, query?: string, cause?: Error) {
     super(message);
     this.name = "MobileShopError"; // Đặt tên class error
     this.status = status;
     this.query = query;
-    this.error = error;
     this.cause = cause;
 
     if (Error.captureStackTrace) {
@@ -55,7 +47,7 @@ function findError<T extends object>(error: T): boolean {
 
 export function handleFetchError(e: unknown, query: string): never {
   if (isMobileShopError(e)) {
-    throw new MobileShopError(e.message, e.status || 500, query, e, e.cause);
+    throw new MobileShopError(e.message, e.status || 500, query, e.cause);
   }
   if (e instanceof Error) {
     throw new Error(e.message);
