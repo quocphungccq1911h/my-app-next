@@ -42,6 +42,20 @@ export async function mobileShopFetch<T>({
   variables?: ExtractVariables<T>;
 }): Promise<{ status: number; body: T }> {
   try {
+    console.log("Request details:", {
+      method: "POST",
+      url: endpoint,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token": key,
+        ...headers,
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    });
+
     const result = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -54,6 +68,9 @@ export async function mobileShopFetch<T>({
         ...(variables && { variables }),
       }),
     });
+
+    console.log(result);
+
     const body = await result.json();
 
     if (body.error) {
@@ -71,6 +88,7 @@ export async function mobileShopFetch<T>({
 
 export async function getCart(): Promise<Cart | undefined> {
   const cartId = (await cookies()).get("cartId")?.value;
+  console.log(cartId);
 
   if (!cartId) return undefined;
 
