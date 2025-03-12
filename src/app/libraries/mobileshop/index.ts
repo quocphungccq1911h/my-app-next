@@ -84,7 +84,6 @@ export async function mobileShopFetch<T>({
 
 export async function getCart(): Promise<Cart | undefined> {
   const cartId = (await cookies()).get("cartId")?.value;
-  console.log(cartId);
 
   if (!cartId) return undefined;
 

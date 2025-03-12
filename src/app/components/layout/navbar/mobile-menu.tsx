@@ -9,9 +9,11 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, Suspense, useEffect, useState } from "react";
+import Search, { SearchSkeleton } from "./search";
+import Link from "next/link";
 
-export default function MobileMenu({ menu }: { menu: Menu[] }) {
+export default function MobileMenu({ menu }: { readonly menu: Menu[] }) {
   const pathName = usePathname();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
@@ -71,6 +73,28 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
                 >
                   <XMarkIcon className="h-6" />
                 </button>
+
+                <div className="mb-4 w-full">
+                  <Suspense fallback={<SearchSkeleton />}>
+                    <Search />
+                  </Suspense>
+                </div>
+                {menu.length ? (
+                  <ul className="flex w-full flex-col">
+                    {menu.map((item: Menu) => (
+                      <li
+                        className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white"
+                        key={item.title}
+                      >
+                        <Link
+                          href={item.path}
+                          onClick={closeMobileMenu}
+                          prefetch={true}
+                        ></Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
             </DialogPanel>
           </TransitionChild>
