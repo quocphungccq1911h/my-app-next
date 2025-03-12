@@ -28,7 +28,7 @@ type ExtractVariables<T> = T extends { variables: object }
   : never;
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
-  return array.edges.map((edge) => edge.node);
+  return array.edges.map(edge => edge.node);
 };
 
 const reshapeCart = (cart: MobileShopCart): Cart => {
@@ -96,7 +96,6 @@ export async function getCart(): Promise<Cart | undefined> {
   if (!res.body.data.cart) {
     return undefined;
   }
-  console.log(res.body.data.cart);
   return reshapeCart(res.body.data.cart);
 }
 
@@ -113,14 +112,12 @@ export async function getMenu(handle: string): Promise<Menu[]> {
   });
 
   return (
-    res.body?.data?.menu?.items.map(
-      (item: { title: string; url: string }) => ({
-        title: item.title,
-        path: item.url
-          .replace(domain, "")
-          .replace("/collections", "/search")
-          .replace("/pages", ""),
-      })
-    ) || []
+    res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
+      title: item.title,
+      path: item.url
+        .replace(domain, "")
+        .replace("/collections", "/search")
+        .replace("/pages", ""),
+    })) || []
   );
 }
