@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import MobileMenu from "./mobile-menu";
 import { getMenu } from "@/app/libraries/mobileshop";
+import Link from "next/link";
+import LogoSquare from "../../logo-square";
+const { SITE_NAME } = process.env;
 
 export async function Navbar() {
   const menu = await getMenu("next-js-frontend-header-menu");
@@ -11,6 +14,20 @@ export async function Navbar() {
         <Suspense fallback={null}>
           <MobileMenu menu={menu} />
         </Suspense>
+      </div>
+      <div className="flex w-full items-center">
+        <div className="flex w-full md:w-1/3">
+          <Link
+            href="/"
+            prefetch={true}
+            className="mr-2 flex w-full items-center justify-center md:w-auto lg:mr-6"
+          >
+            <LogoSquare />  
+            <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
+              {SITE_NAME}
+            </div>
+          </Link>
+        </div>
       </div>
     </nav>
   );
