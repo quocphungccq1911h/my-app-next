@@ -1,5 +1,10 @@
 "use client";
-import { Cart, CartItem } from "@/app/libraries/mobileshop/type";
+import {
+  Cart,
+  CartItem,
+  Product,
+  ProductVariant,
+} from "@/app/libraries/mobileshop/type";
 import { createContext, use, useContext, useMemo, useOptimistic } from "react";
 
 type CartContextType = {
@@ -12,6 +17,15 @@ type CartProviderProps = Readonly<{
 }>;
 
 type UpdateType = "plus" | "minus" | "delete";
+type CartAction =
+  | {
+      type: "UPDATE_ITEM";
+      payload: { merchandiseId: string; updateType: UpdateType };
+    }
+  | {
+      type: "ADD_ITEM";
+      payload: { variant: ProductVariant; product: Product };
+    };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 function createEmptyCart(): Cart {
@@ -68,7 +82,9 @@ export function CartProvider({ children, cartPromise }: CartProviderProps) {
   );
 }
 
-function cartReducer();
+function cartReducer(state: Cart | undefined, action: CartAction): Cart {
+
+}
 
 export function useCart() {
   const context = useContext(CartContext);
