@@ -1,6 +1,6 @@
 "use client";
-import { Cart } from "@/app/libraries/mobileshop/type";
-import { createContext, useMemo } from "react";
+import { Cart, CartItem } from "@/app/libraries/mobileshop/type";
+import { createContext, use, useContext, useMemo, useOptimistic } from "react";
 
 type CartContextType = {
   cartPromise: Promise<Cart | undefined>;
@@ -11,11 +11,73 @@ type CartProviderProps = Readonly<{
   cartPromise: Promise<Cart | undefined>;
 }>;
 
+type UpdateType = "plus" | "minus" | "delete";
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
+function createEmptyCart(): Cart {
+  return {
+    id: undefined,
+    checkoutUrl: "",
+    totalQuantity: 0,
+    lines: [],
+    cost: {
+      subtotalAmount: { amount: "0", currencyCode: "USD" },
+      totalAmount: { amount: "0", currencyCode: "USD" },
+      totalTaxAmount: { amount: "0", currencyCode: "USD" },
+    },
+  };
+}
+
+function calculateItemCost(quantity: number, price: string): string {
+  return (Number(price) * quantity).toString();
+}
+
+function updateCartItem(
+  item: CartItem,
+  updateType: UpdateType
+): CartItem | null {
+  if (updateType === "delete") return null;
+
+  const newQuantity =
+    updateType === "plus" ? item.quantity + 1 : item.quantity - 1;
+  if (newQuantity === 0) return null;
+
+  const singleItemAmount = Number(item.cost.totalAmount.amount) / item.quantity;
+  const newTotalAmount = calculateItemCost(
+    newQuantity,
+    singleItemAmount.toString()
+  );
+
+  return {
+    ...item,
+    quantity: newQuantity,
+    cost: {
+      ...item.cost,
+      totalAmount: {
+        ...item.cost.totalAmount,
+        amount: newTotalAmount,
+      },
+    },
+  };
+}
 
 export function CartProvider({ children, cartPromise }: CartProviderProps) {
   const contextValue = useMemo(() => ({ cartPromise }), [cartPromise]);
   return (
     <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>
+  );
+}
+
+function cartReducer();
+
+export function useCart() {
+  const context = useContext(CartContext);
+  if (context === undefined)
+    throw new Error("useCart must be used within a CartProvider");
+
+  const initialCart = use(context.cartPromise);
+  const [optimisticCart, UpdateOptimisticCart] = useOptimistic(
+    initialCart,
+    cartReducer
   );
 }
