@@ -8,6 +8,7 @@ import {
   Menu,
   MobileCartOperation,
   MobileShopCart,
+  MobileShopCreateCartOperation,
   MobileShopMenuOperation,
 } from "./type";
 import { getCartQuery } from "./queries/cart";
@@ -96,6 +97,12 @@ export async function getCart(): Promise<Cart | undefined> {
     return undefined;
   }
   return reshapeCart(res.body.data.cart);
+}
+
+export async function createCart(): Promise<Cart> {
+  const res = await mobileShopFetch<MobileShopCreateCartOperation>({
+    query: createCartMutation,
+  });
 }
 
 export async function getMenu(handle: string): Promise<Menu[]> {

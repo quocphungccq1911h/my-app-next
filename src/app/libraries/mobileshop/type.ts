@@ -75,6 +75,10 @@ export type MobileCartOperation = {
   };
 };
 
+export type MobileShopCreateCartOperation = {
+  data: { cartCreate: { cart: MobileShopCart } };
+};
+
 export type Menu = {
   title: string;
   path: string;
