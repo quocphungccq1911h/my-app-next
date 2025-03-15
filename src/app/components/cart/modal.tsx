@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "./cart-context";
 import { createCartAndSetCookie } from "./actions";
+import OpenCart from "./open-cart";
 
 export default function CartModal() {
   const {cart, updateCartItem} = useCart();
@@ -27,7 +28,7 @@ export default function CartModal() {
   return (
     <>
       <button aria-label="open-cart" onClick={openCart}>
-        Open Cart
+        <OpenCart quantity={cart?.totalQuantity}/>
       </button>
     </>
   );

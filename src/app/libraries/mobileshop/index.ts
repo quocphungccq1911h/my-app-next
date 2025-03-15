@@ -30,7 +30,7 @@ type ExtractVariables<T> = T extends { variables: object }
   : never;
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
-  return array.edges.map(edge => edge.node);
+  return array.edges.map((edge) => edge.node);
 };
 
 const reshapeCart = (cart: MobileShopCart): Cart => {
@@ -56,6 +56,7 @@ export async function mobileShopFetch<T>({
   variables?: ExtractVariables<T>;
 }): Promise<{ status: number; body: T }> {
   try {
+
     const result = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -71,8 +72,8 @@ export async function mobileShopFetch<T>({
 
     const body = await result.json();
 
-    if (body.error) {
-      throw body.error[0];
+    if (body.errors) {
+      throw body.errors[0];
     }
 
     return {
@@ -104,7 +105,7 @@ export async function createCart(): Promise<Cart> {
   const res = await mobileShopFetch<MobileShopCreateCartOperation>({
     query: createCartMutation,
   });
-  return reshapeCart(res.body.data.cartCreate.cart)
+  return reshapeCart(res.body.data.cartCreate.cart);
 }
 
 export async function getMenu(handle: string): Promise<Menu[]> {
