@@ -17,6 +17,7 @@ import {
   unstable_cacheLife as cacheLife,
 } from "next/cache";
 import { getMenuQuery } from "./queries/menu";
+import { createCartMutation } from "./mutations/cart";
 
 const domain = process.env.MOBILESHOP_STORE_DOMAIN
   ? ensureStartsWith(process.env.MOBILESHOP_STORE_DOMAIN, "https://")
@@ -103,6 +104,7 @@ export async function createCart(): Promise<Cart> {
   const res = await mobileShopFetch<MobileShopCreateCartOperation>({
     query: createCartMutation,
   });
+  return reshapeCart(res.body.data.cartCreate.cart)
 }
 
 export async function getMenu(handle: string): Promise<Menu[]> {

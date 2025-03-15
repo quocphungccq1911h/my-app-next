@@ -5,6 +5,7 @@ import Link from "next/link";
 import LogoSquare from "../../logo-square";
 import { Menu } from "@/app/libraries/mobileshop/type";
 import Search, { SearchSkeleton } from "./search";
+import CartModal from "../../cart/modal";
 const { SITE_NAME } = process.env;
 
 export async function Navbar() {
@@ -50,7 +51,9 @@ export async function Navbar() {
             <Search />
           </Suspense>
         </div>
-        <div className="flex justify-end md:w-1/3">CartModal</div>
+        <div className="flex justify-end md:w-1/3">
+          <CartModal />
+        </div>
       </div>
     </nav>
   );

@@ -142,7 +142,7 @@ export function CartProvider({ children, cartPromise }: CartProviderProps) {
 }
 
 function cartReducer(state: Cart | undefined, action: CartAction): Cart {
-  const currentCart = state || createEmptyCart();
+  const currentCart = state ?? createEmptyCart();
 
   switch (action.type) {
     case "UPDATE_ITEM": {
@@ -205,20 +205,20 @@ export function useCart() {
     throw new Error("useCart must be used within a CartProvider");
 
   const initialCart = use(context.cartPromise);
-  const [optimisticCart, UpdateOptimisticCart] = useOptimistic(
+  const [optimisticCart, updateOptimisticCart] = useOptimistic(
     initialCart,
     cartReducer
   );
 
   const updateCartItem = (merchandiseId: string, updateType: UpdateType) => {
-    UpdateOptimisticCart({
+    updateOptimisticCart({
       payload: { merchandiseId, updateType },
       type: "UPDATE_ITEM",
     });
   };
 
   const addCartItem = (variant: ProductVariant, product: Product) => {
-    UpdateOptimisticCart({ type: "ADD_ITEM", payload: { variant, product } });
+    updateOptimisticCart({ type: "ADD_ITEM", payload: { variant, product } });
   };
 
   return useMemo(
