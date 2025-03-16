@@ -10,6 +10,8 @@ import {
   MobileShopCart,
   MobileShopCreateCartOperation,
   MobileShopMenuOperation,
+  MobileShopRemoveFromCartOperation,
+  MobileShopUpdateCartOperation,
 } from "./type";
 import { getCartQuery } from "./queries/cart";
 import {
@@ -17,7 +19,11 @@ import {
   unstable_cacheLife as cacheLife,
 } from "next/cache";
 import { getMenuQuery } from "./queries/menu";
-import { createCartMutation } from "./mutations/cart";
+import {
+  createCartMutation,
+  editCartItemsMutation,
+  removeFromCartMutation,
+} from "./mutations/cart";
 
 const domain = process.env.MOBILESHOP_STORE_DOMAIN
   ? ensureStartsWith(process.env.MOBILESHOP_STORE_DOMAIN, "https://")
@@ -56,7 +62,6 @@ export async function mobileShopFetch<T>({
   variables?: ExtractVariables<T>;
 }): Promise<{ status: number; body: T }> {
   try {
-
     const result = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -106,6 +111,32 @@ export async function createCart(): Promise<Cart> {
     query: createCartMutation,
   });
   return reshapeCart(res.body.data.cartCreate.cart);
+}
+
+export async function removeFromCart(lineIds: string[]): Promise<Cart> {
+  const cartId = (await cookies()).get("cartId")?.value ?? "";
+  const res = await mobileShopFetch<MobileShopRemoveFromCartOperation>({
+    query: removeFromCartMutation,
+    variables: {
+      cartId,
+      lineIds,
+    },
+  });
+  return reshapeCart(res.body.data.cartLinesRemove.cart);
+}
+
+export async function updateCart(
+  lines: { id: string; merchandiseId: string; quantity: number }[]
+): Promise<Cart> {
+  const cartId = (await cookies()).get("cartId")?.value ?? "";
+  const res = await mobileShopFetch<MobileShopUpdateCartOperation>({
+    query: editCartItemsMutation,
+    variables: {
+      cartId,
+      lines,
+    },
+  });
+  return reshapeCart(res.body.data.cartLinesUpdate.cart);
 }
 
 export async function getMenu(handle: string): Promise<Menu[]> {

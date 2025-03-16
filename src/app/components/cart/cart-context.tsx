@@ -16,7 +16,7 @@ type CartProviderProps = Readonly<{
   cartPromise: Promise<Cart | undefined>;
 }>;
 
-type UpdateType = "plus" | "minus" | "delete";
+export type UpdateType = "plus" | "minus" | "delete";
 type CartAction =
   | {
       type: "UPDATE_ITEM";

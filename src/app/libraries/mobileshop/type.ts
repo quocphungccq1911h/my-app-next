@@ -98,6 +98,34 @@ export type MobileShopMenuOperation = {
   };
 };
 
+export type MobileShopRemoveFromCartOperation = {
+  data: {
+    cartLinesRemove: {
+      cart: MobileShopCart;
+    };
+  };
+  variables: {
+    cartId: string;
+    lineIds: string[];
+  };
+};
+
+export type MobileShopUpdateCartOperation = {
+  data: {
+    cartLinesUpdate: {
+      cart: MobileShopCart;
+    };
+  };
+  variables: {
+    cartId: string;
+    lines: {
+      id: string;
+      merchandiseId: string;
+      quantity: number;
+    }[];
+  };
+};
+
 export type SEO = {
   title: string;
   description: string;
