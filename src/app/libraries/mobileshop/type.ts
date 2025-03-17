@@ -79,6 +79,21 @@ export type MobileShopCreateCartOperation = {
   data: { cartCreate: { cart: MobileShopCart } };
 };
 
+export type MobileShopAddToCartOperation = {
+  data: {
+    cartLinesAdd: {
+      cart: MobileShopCart;
+    };
+  };
+  variables: {
+    cartId: string;
+    lines: {
+      merchandiseId: string;
+      quantity: number;
+    }[];
+  };
+};
+
 export type Menu = {
   title: string;
   path: string;

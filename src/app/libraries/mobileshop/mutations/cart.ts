@@ -32,3 +32,14 @@ export const editCartItemsMutation = /* GraphQL */ `
   }
   ${cartFragment}
 `;
+
+export const addToCartMutation = /* GraphQL */ `
+  mutation addToCart($cartId: ID!, $lines: [CartLineInput!]!) {
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        ...cart
+      }
+    }
+  }
+  ${cartFragment}
+`;

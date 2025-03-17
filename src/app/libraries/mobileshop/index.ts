@@ -7,6 +7,7 @@ import {
   Connection,
   Menu,
   MobileCartOperation,
+  MobileShopAddToCartOperation,
   MobileShopCart,
   MobileShopCreateCartOperation,
   MobileShopMenuOperation,
@@ -20,6 +21,7 @@ import {
 } from "next/cache";
 import { getMenuQuery } from "./queries/menu";
 import {
+  addToCartMutation,
   createCartMutation,
   editCartItemsMutation,
   removeFromCartMutation,
@@ -36,7 +38,7 @@ type ExtractVariables<T> = T extends { variables: object }
   : never;
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
-  return array.edges.map((edge) => edge.node);
+  return array.edges.map(edge => edge.node);
 };
 
 const reshapeCart = (cart: MobileShopCart): Cart => {
@@ -137,6 +139,20 @@ export async function updateCart(
     },
   });
   return reshapeCart(res.body.data.cartLinesUpdate.cart);
+}
+
+export async function addToCart(
+  lines: { merchandiseId: string; quantity: number }[]
+): Promise<Cart> {
+  const cartId = (await cookies()).get("cartId")?.value ?? "";
+  const res = await mobileShopFetch<MobileShopAddToCartOperation>({
+    query: addToCartMutation,
+    variables: {
+      cartId: cartId,
+      lines: lines,
+    },
+  });
+  return reshapeCart(res.body.data.cartLinesAdd.cart);
 }
 
 export async function getMenu(handle: string): Promise<Menu[]> {

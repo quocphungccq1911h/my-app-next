@@ -90,7 +90,9 @@ export default function MobileMenu({ menu }: { readonly menu: Menu[] }) {
                           href={item.path}
                           onClick={closeMobileMenu}
                           prefetch={true}
-                        ></Link>
+                        >
+                          {item.title}
+                        </Link>
                       </li>
                     ))}
                   </ul>

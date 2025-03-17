@@ -18,6 +18,7 @@ import { DeleteItemButton } from "./delete-item-button";
 import Image from "next/image";
 import Link from "next/link";
 import Price from "../price";
+import { EditItemQuantityButton } from "./edit-item-quantity-button";
 
 type MerchandiseSearchParams = {
   [key: string]: string;
@@ -93,7 +94,7 @@ export default function CartModal() {
                 <div className="flex h-full flex-col justify-between overflow-hidden p-1">
                   <ul className="grow overflow-auto py-4">
                     {cart.lines
-                      .sort((a, b) =>
+                      .toSorted((a, b) =>
                         a.merchandise.product.title.localeCompare(
                           b.merchandise.product.title
                         )
@@ -170,6 +171,23 @@ export default function CartModal() {
                                   }
                                   className="flex justify-end space-y-2 text-right text-sm"
                                 />
+                                <div className="ml-auto flex h-9 flex-row items-center rounded-full border border-neutral-200 dark:border-neutral-700">
+                                  <EditItemQuantityButton
+                                    item={item}
+                                    type="minus"
+                                    optimisticUpdate={updateCartItem}
+                                  />
+                                  <p className="w-6 text-center">
+                                    <span className="w-full text-sm">
+                                      {item.quantity}
+                                    </span>
+                                  </p>
+                                  <EditItemQuantityButton
+                                    item={item}
+                                    type="plus"
+                                    optimisticUpdate={updateCartItem}
+                                  />
+                                </div>
                               </div>
                             </div>
                           </li>
