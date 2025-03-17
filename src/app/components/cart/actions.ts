@@ -9,6 +9,7 @@ import {
 } from "@/app/libraries/mobileshop";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function createCartAndSetCookie() {
   const cart = await createCart();
@@ -68,5 +69,15 @@ export async function updateItemQuantity(
       // If the item doesn't exist in the cart and quantity > 0, add it
       await addToCart([{ merchandiseId, quantity }]);
     }
-  } catch {}
+  } catch(e) {
+    console.error(e);
+    return 'Error updating item quantity';
+  }
 }
+
+export async function redirectToCheckout() {
+  const cart = await getCart();
+  redirect(cart!.checkoutUrl);
+}
+
+

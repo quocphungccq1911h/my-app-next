@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useCart } from "./cart-context";
-import { createCartAndSetCookie } from "./actions";
+import { createCartAndSetCookie, redirectToCheckout } from "./actions";
 import OpenCart from "./open-cart";
 import { clsx } from "clsx";
 import {
@@ -19,6 +19,8 @@ import Image from "next/image";
 import Link from "next/link";
 import Price from "../price";
 import { EditItemQuantityButton } from "./edit-item-quantity-button";
+import { useFormStatus } from "react-dom";
+import LoadingDots from "../loading-dots";
 
 type MerchandiseSearchParams = {
   [key: string]: string;
@@ -194,6 +196,31 @@ export default function CartModal() {
                         );
                       })}
                   </ul>
+                  <div className="py-4 text-sm text-neutral-500 dark:text-neutral-400">
+                    <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 dark:border-neutral-700">
+                      <p>Taxes</p>
+                      <Price
+                        amount={cart.cost.totalTaxAmount.amount}
+                        currencyCode={cart.cost.totalTaxAmount.currencyCode}
+                        className="text-right text-base text-black dark:text-white"
+                      />
+                    </div>
+                    <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
+                      <p>Shipping</p>
+                      <p className="text-right">Calculated at checkout</p>
+                    </div>
+                    <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
+                      <p>Total</p>
+                      <Price
+                        amount={cart.cost.totalAmount.amount}
+                        currencyCode={cart.cost.totalAmount.currencyCode}
+                        className="text-right text-base text-black dark:text-white"
+                      />
+                    </div>
+                  </div>
+                  <form action={redirectToCheckout}>
+                    <CheckoutButton />
+                  </form>
                 </div>
               )}
             </DialogPanel>
@@ -214,5 +241,18 @@ function CloseCart({ className }: Readonly<{ className?: string }>) {
         )}
       />
     </div>
+  );
+}
+
+function CheckoutButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      className="block w-full rounded-full bg-blue-600 p-3 text-center text-sm font-medium text-white opacity-90 hover:opacity-100"
+      type="submit"
+      disabled={pending}
+    >
+      {pending ? <LoadingDots className="bg-white" /> : "Proceed to Checkout"}
+    </button>
   );
 }
