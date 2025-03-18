@@ -4,11 +4,14 @@ import { handleFetchError } from "../type-guards";
 import { ensureStartsWith } from "../utils";
 import {
   Cart,
+  Collection,
   Connection,
   Menu,
   MobileCartOperation,
   MobileShopAddToCartOperation,
   MobileShopCart,
+  MobileShopCollection,
+  MobileShopCollectionsOperation,
   MobileShopCreateCartOperation,
   MobileShopMenuOperation,
   MobileShopRemoveFromCartOperation,
@@ -26,6 +29,7 @@ import {
   editCartItemsMutation,
   removeFromCartMutation,
 } from "./mutations/cart";
+import { getCollectionsQuery } from "./queries/collection";
 
 const domain = process.env.MOBILESHOP_STORE_DOMAIN
   ? ensureStartsWith(process.env.MOBILESHOP_STORE_DOMAIN, "https://")
@@ -176,4 +180,60 @@ export async function getMenu(handle: string): Promise<Menu[]> {
         .replace("/pages", ""),
     })) || []
   );
+}
+
+const reshapeCollection = (
+  collection: MobileShopCollection
+): Collection | undefined => {
+  if (!collection) {
+    return undefined;
+  }
+  return {
+    ...collection,
+    path: `/search/${collection.handle}`,
+  };
+};
+
+const reshapeCollections = (collections: MobileShopCollection[]) => {
+  const reshapedCollections = [];
+  for (const collection of collections) {
+    if (collection) {
+      const reshapedCollection = reshapeCollection(collection);
+      if (reshapedCollection) {
+        reshapedCollections.push(reshapedCollection);
+      }
+    }
+  }
+  return reshapedCollections;
+};
+
+export async function getCollections(): Promise<Collection[]> {
+  "use cache";
+  cacheTag(TAGS.collections);
+  cacheLife("days");
+
+  const res = await mobileShopFetch<MobileShopCollectionsOperation>({
+    query: getCollectionsQuery,
+  });
+
+  const mobileShopCollections = removeEdgesAndNodes(res.body.data.collections);
+  const collections = [
+    {
+      handle: "",
+      title: "All",
+      description: "All products",
+      seo: {
+        title: "All",
+        description: "All products",
+      },
+      path: "/search",
+      updatedAt: new Date().toISOString(),
+    },
+    // Filter out the `hidden` collections.
+    // Collections that start with `hidden-*` need to be hidden on the search page.
+    ...reshapeCollections(mobileShopCollections).filter(
+      collection => !collection.handle.startsWith("hidden")
+    ),
+  ];
+  return collections;
 }

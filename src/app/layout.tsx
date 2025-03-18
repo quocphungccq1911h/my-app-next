@@ -5,6 +5,7 @@ import { getCart } from "./libraries/mobileshop";
 import { CartProvider } from "./components/cart/cart-context";
 import { Navbar } from "./components/layout/navbar";
 import { baseUrl } from "./libraries/utils";
+import { Toaster } from "sonner";
 
 const { SITE_NAME } = process.env;
 
@@ -31,8 +32,11 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.variable}>
       <body className="bg-neutral-50 text-black selection:bg-teal-300 dark:bg-neutral-900 dark:text-white dark:selection:bg-pink-500 dark:selection:text-white">
         <CartProvider cartPromise={cart}>
-          {children}
           <Navbar />
+          <main>
+            <Toaster closeButton />
+            {children}
+          </main>
         </CartProvider>
       </body>
     </html>

@@ -187,3 +187,21 @@ export type Product = Omit<MobileShopProduct, "variants" | "images"> & {
   variants: ProductVariant[];
   images: Image[];
 };
+
+export type MobileShopCollectionsOperation = {
+  data: {
+    collections: Connection<MobileShopCollection>;
+  };
+};
+
+export type MobileShopCollection = {
+  handle: string;
+  title: string;
+  description: string;
+  seo: SEO;
+  updatedAt: string;
+};
+
+export type Collection = MobileShopCollection & {
+  path: string;
+};
