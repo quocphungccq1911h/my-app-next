@@ -1,10 +1,12 @@
+'use client'
+
 import { usePathname, useSearchParams } from "next/navigation";
 import type { ListItem } from ".";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { FilterItem } from "./item";
 
-export default function FilterItemDropdown({ list }: { list: ListItem[] }) {
+export default function FilterItemDropdown({ list }: Readonly<{ list: ListItem[] }>) {
   const pathName = usePathname();
   const searchParams = useSearchParams();
   const [active, setActive] = useState("");

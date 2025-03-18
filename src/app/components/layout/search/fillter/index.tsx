@@ -1,11 +1,12 @@
 import { SortFilterItem } from "@/app/libraries/constants";
 import { Suspense } from "react";
 import { FilterItem } from "./item";
+import FilterItemDropdown from "./dropdown";
 
 export type ListItem = SortFilterItem | PathFilterItem;
 export type PathFilterItem = { title: string; path: string };
 
-function FilterItemList({ list }: { list: ListItem[] }) {
+function FilterItemList({ list }: Readonly<{ list: ListItem[] }>) {
   return (
     <>
       {list.map((item: ListItem, i) => (
@@ -18,10 +19,10 @@ function FilterItemList({ list }: { list: ListItem[] }) {
 export default function FilterList({
   list,
   title,
-}: {
+}: Readonly<{
   list: ListItem[];
   title?: string;
-}) {
+}>) {
   return (
     <nav>
       {title ? (
@@ -35,7 +36,7 @@ export default function FilterList({
         </Suspense>
       </ul>
       <ul className="md:hidden">
-        <Suspense fallback={null}>FilterItemDropdown</Suspense>
+        <Suspense fallback={null}><FilterItemDropdown list={list} /></Suspense>
       </ul>
     </nav>
   );

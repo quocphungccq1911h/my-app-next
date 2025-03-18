@@ -6,7 +6,7 @@ import { createUrl } from "@/app/libraries/utils";
 import clsx from "clsx";
 import type { SortFilterItem } from "@/app/libraries/constants";
 
-function PathFilterItem({ item }: { item: PathFilterItem }) {
+function PathFilterItem({ item }: Readonly<{ item: PathFilterItem }>) {
   const pathName = usePathname();
   const active = pathName === item.path;
   const DynamicTag = active ? "p" : Link;
@@ -31,7 +31,7 @@ function PathFilterItem({ item }: { item: PathFilterItem }) {
   );
 }
 
-function SortFilterItem({ item }: { item: SortFilterItem }) {
+function SortFilterItem({ item }: Readonly<{ item: SortFilterItem }>) {
   const pathName = usePathname();
   const searchParams = useSearchParams();
   const active = searchParams.get("sort") === item.slug;
