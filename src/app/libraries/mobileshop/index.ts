@@ -1,11 +1,16 @@
 import { cookies } from "next/headers";
-import { MOBILESHOP_GRAPHQL_API_ENDPOINT, TAGS } from "../constants";
+import {
+  HIDDEN_PRODUCT_TAG,
+  MOBILESHOP_GRAPHQL_API_ENDPOINT,
+  TAGS,
+} from "../constants";
 import { handleFetchError } from "../type-guards";
 import { ensureStartsWith } from "../utils";
 import {
   Cart,
   Collection,
   Connection,
+  Image,
   Menu,
   MobileCartOperation,
   MobileShopAddToCartOperation,
@@ -14,8 +19,11 @@ import {
   MobileShopCollectionsOperation,
   MobileShopCreateCartOperation,
   MobileShopMenuOperation,
+  MobileShopProduct,
+  MobileShopProductsOperation,
   MobileShopRemoveFromCartOperation,
   MobileShopUpdateCartOperation,
+  Product,
 } from "./type";
 import { getCartQuery } from "./queries/cart";
 import {
@@ -30,6 +38,7 @@ import {
   removeFromCartMutation,
 } from "./mutations/cart";
 import { getCollectionsQuery } from "./queries/collection";
+import { getProductsQuery } from "./queries/product";
 
 const domain = process.env.MOBILESHOP_STORE_DOMAIN
   ? ensureStartsWith(process.env.MOBILESHOP_STORE_DOMAIN, "https://")
@@ -237,3 +246,75 @@ export async function getCollections(): Promise<Collection[]> {
   ];
   return collections;
 }
+
+//#region Images
+const reshapeImages = (images: Connection<Image>, productTitle: string) => {
+  const flattened = removeEdgesAndNodes(images);
+  return flattened.map(image => {
+    const regex = /.*\/(.*)\..*/;
+    const match = regex.exec(image.url);
+    const filename = match ? match[1] : null;
+    return {
+      ...image,
+      altText: image.altText || `${productTitle} - ${filename}`,
+    };
+  });
+};
+//#endregion
+
+//#region Product
+const reshapeProduct = (
+  product: MobileShopProduct,
+  filterHiddenProducts: boolean = true
+) => {
+  if (
+    !product ||
+    (filterHiddenProducts && product.tags.includes(HIDDEN_PRODUCT_TAG))
+  ) {
+    return undefined;
+  }
+  const { images, variants, ...rest } = product;
+
+  return {
+    ...rest,
+    variants: removeEdgesAndNodes(variants),
+    images: reshapeImages(images, product.title),
+  };
+};
+
+const reshapeProducts = (products: MobileShopProduct[]) => {
+  const reshapedProducts = [];
+
+  for (const product of products) {
+    if (product) {
+      const reshapedProduct = reshapeProduct(product);
+      if (reshapedProduct) reshapedProducts.push(reshapedProduct);
+    }
+  }
+  return reshapedProducts;
+};
+
+export async function getProducts({
+  query,
+  reverse,
+  sortKey,
+}: {
+  query?: string;
+  reverse?: boolean;
+  sortKey?: string;
+}): Promise<Product[]> {
+  "use cache";
+  cacheTag(TAGS.products);
+  cacheLife("days");
+
+  const res = await mobileShopFetch<MobileShopProductsOperation>({
+    query: getProductsQuery,
+    variables: {
+      query,
+      reverse,
+      sortKey,
+    },
+  });
+  return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
+}
+//#endregion

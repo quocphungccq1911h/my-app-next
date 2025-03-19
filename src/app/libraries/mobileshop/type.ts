@@ -205,3 +205,14 @@ export type MobileShopCollection = {
 export type Collection = MobileShopCollection & {
   path: string;
 };
+
+export type MobileShopProductsOperation = {
+  data: {
+    products: Connection<MobileShopProduct>;
+  };
+  variables: {
+    query?: string;
+    reverse?: boolean;
+    sortKey?: string;
+  };
+};
