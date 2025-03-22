@@ -216,3 +216,16 @@ export type MobileShopProductsOperation = {
     sortKey?: string;
   };
 };
+
+export type MobileShopCollectionProductsOperation = {
+  data: {
+    collection: {
+      products: Connection<MobileShopProduct>;
+    };
+  };
+  variables: {
+    handle: string;
+    reverse?: boolean;
+    sortKey?: string;
+  };
+};

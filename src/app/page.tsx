@@ -1,3 +1,5 @@
+import { ThreeItemGrid } from "./components/grid/three-items";
+
 export const metadata = {
   description:
     "High-performance ecommerce store built with Next.js, Vercel, and Shopify.",
@@ -9,7 +11,7 @@ export const metadata = {
 export default function HomePage() {
   return (
     <>
-      <div>ThreeItemGrid</div>
+      <ThreeItemGrid />
       <div>Carousel</div>
       <div>Footer</div>
     </>

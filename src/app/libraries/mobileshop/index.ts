@@ -16,6 +16,7 @@ import {
   MobileShopAddToCartOperation,
   MobileShopCart,
   MobileShopCollection,
+  MobileShopCollectionProductsOperation,
   MobileShopCollectionsOperation,
   MobileShopCreateCartOperation,
   MobileShopMenuOperation,
@@ -37,7 +38,10 @@ import {
   editCartItemsMutation,
   removeFromCartMutation,
 } from "./mutations/cart";
-import { getCollectionsQuery } from "./queries/collection";
+import {
+  getCollectionProductsQuery,
+  getCollectionsQuery,
+} from "./queries/collection";
 import { getProductsQuery } from "./queries/product";
 
 const domain = process.env.MOBILESHOP_STORE_DOMAIN
@@ -51,7 +55,7 @@ type ExtractVariables<T> = T extends { variables: object }
   : never;
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
-  return array.edges.map(edge => edge.node);
+  return array.edges.map((edge) => edge.node);
 };
 
 const reshapeCart = (cart: MobileShopCart): Cart => {
@@ -241,7 +245,7 @@ export async function getCollections(): Promise<Collection[]> {
     // Filter out the `hidden` collections.
     // Collections that start with `hidden-*` need to be hidden on the search page.
     ...reshapeCollections(mobileShopCollections).filter(
-      collection => !collection.handle.startsWith("hidden")
+      (collection) => !collection.handle.startsWith("hidden")
     ),
   ];
   return collections;
@@ -250,7 +254,7 @@ export async function getCollections(): Promise<Collection[]> {
 //#region Images
 const reshapeImages = (images: Connection<Image>, productTitle: string) => {
   const flattened = removeEdgesAndNodes(images);
-  return flattened.map(image => {
+  return flattened.map((image) => {
     const regex = /.*\/(.*)\..*/;
     const match = regex.exec(image.url);
     const filename = match ? match[1] : null;
@@ -316,5 +320,36 @@ export async function getProducts({
     },
   });
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
+}
+
+export async function getCollectionProducts({
+  collection,
+  reverse,
+  sortKey,
+}: {
+  collection: string;
+  reverse?: boolean;
+  sortKey?: string;
+}): Promise<Product[]> {
+  "use cache";
+  cacheTag(TAGS.collections, TAGS.products);
+  cacheLife("days");
+
+  const res = await mobileShopFetch<MobileShopCollectionProductsOperation>({
+    query: getCollectionProductsQuery,
+    variables: {
+      handle: collection,
+      reverse: reverse,
+      sortKey: sortKey === "CREATED_AT" ? "CREATED" : sortKey,
+    },
+  });
+
+  if (!res.body.data.collection) {
+    console.log(`No collection found for \`${collection}\``);
+    return [];
+  }
+  return reshapeProducts(
+    removeEdgesAndNodes(res.body.data.collection.products)
+  );
 }
 //#endregion
