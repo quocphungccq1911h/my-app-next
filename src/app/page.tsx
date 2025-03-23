@@ -1,3 +1,4 @@
+import { Carousel } from "./components/carousel";
 import { ThreeItemGrid } from "./components/grid/three-items";
 
 export const metadata = {
@@ -12,7 +13,7 @@ export default function HomePage() {
   return (
     <>
       <ThreeItemGrid />
-      <div>Carousel</div>
+      <Carousel />
       <div>Footer</div>
     </>
   );
