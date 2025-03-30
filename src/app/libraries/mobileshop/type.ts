@@ -229,3 +229,10 @@ export type MobileShopCollectionProductsOperation = {
     sortKey?: string;
   };
 };
+
+export type MobileShopProductOperation = {
+  data: { product: MobileShopProduct };
+  variables: {
+    handle: string;
+  };
+};

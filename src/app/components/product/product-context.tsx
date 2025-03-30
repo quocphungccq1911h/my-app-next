@@ -1,5 +1,13 @@
+"use client";
 import { useSearchParams } from "next/navigation";
-import { createContext, useMemo, useOptimistic } from "react";
+import { useRouter } from "next/router";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useOptimistic,
+} from "react";
 
 type ProductState = {
   [key: string]: string;
@@ -36,17 +44,23 @@ export function ProductProvider({
     })
   );
 
-  const updateOption = (name: string, value: string) => {
-    const newState = { [name]: value };
-    setOptimisticState(newState);
-    return { ...state, ...newState };
-  };
+  const updateOption = useCallback(
+    (name: string, value: string) => {
+      const newState = { [name]: value };
+      setOptimisticState(newState);
+      return { ...state, ...newState };
+    },
+    [state, setOptimisticState]
+  );
 
-  const updateImage = (index: string) => {
-    const newState = { image: index };
-    setOptimisticState(newState);
-    return { ...state, ...newState };
-  };
+  const updateImage = useCallback(
+    (index: string) => {
+      const newState = { image: index };
+      setOptimisticState(newState);
+      return { ...state, ...newState };
+    },
+    [state, setOptimisticState]
+  );
 
   const value = useMemo(
     () => ({
@@ -54,9 +68,29 @@ export function ProductProvider({
       updateOption,
       updateImage,
     }),
-    [state]
+    [state, updateOption, updateImage]
   );
   return (
     <ProductContext.Provider value={value}>{children}</ProductContext.Provider>
   );
+}
+
+export function useProduct() {
+  const context = useContext(ProductContext);
+  if (context === undefined) {
+    throw new Error("useProduct must be used within a ProductProvider");
+  }
+  return context;
+}
+
+export function useUpdateURL() {
+  const router = useRouter();
+
+  return (state: ProductState) => {
+    const newParams = new URLSearchParams(window.location.search);
+    Object.entries(state).forEach(([key, value]) => {
+      newParams.set(key, value);
+    });
+    router.push(`?${newParams.toString()}`, undefined, { scroll: false });
+  };
 }

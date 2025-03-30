@@ -21,6 +21,7 @@ import {
   MobileShopCreateCartOperation,
   MobileShopMenuOperation,
   MobileShopProduct,
+  MobileShopProductOperation,
   MobileShopProductsOperation,
   MobileShopRemoveFromCartOperation,
   MobileShopUpdateCartOperation,
@@ -42,7 +43,7 @@ import {
   getCollectionProductsQuery,
   getCollectionsQuery,
 } from "./queries/collection";
-import { getProductsQuery } from "./queries/product";
+import { getProductQuery, getProductsQuery } from "./queries/product";
 
 const domain = process.env.MOBILESHOP_STORE_DOMAIN
   ? ensureStartsWith(process.env.MOBILESHOP_STORE_DOMAIN, "https://")
@@ -320,6 +321,21 @@ export async function getProducts({
     },
   });
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
+}
+
+export async function getProduct(handle: string): Promise<Product | undefined> {
+  "use cache";
+  cacheTag(TAGS.products);
+  cacheLife("days");
+
+  const res = await mobileShopFetch<MobileShopProductOperation>({
+    query: getProductQuery,
+    variables: {
+      handle,
+    },
+  });
+
+  return reshapeProduct(res.body.data.product);
 }
 
 export async function getCollectionProducts({
